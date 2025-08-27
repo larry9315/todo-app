@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import TodoList from "./components/TodoList";
 import type { Todo } from "../types";
 
@@ -66,6 +66,23 @@ export default function Home() {
         </div>
 
         <TodoList todos={todos} onToggle={toggleTodo} onRemove={removeTodo} />
+
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-sm text-gray-600">
+            {todos.length} item{todos.length !== 1 ? "s" : ""}
+          </span>
+          <button
+            onClick={clearCompleted}
+            disabled={!hasCompleted}
+            className={`text-sm px-3 py-1 rounded ${
+              hasCompleted
+                ? "text-red-600 hover:bg-red-50"
+                : "text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            Clear completed
+          </button>
+        </div>
       </div>
     </main>
   );
