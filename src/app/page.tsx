@@ -4,9 +4,28 @@ import { useState, useEffect, useMemo } from "react";
 import TodoList from "./components/TodoList";
 import type { Todo } from "../types";
 
+type Filter = "all" | "active" | "completed";
+const STORAGE_KEY = "todos-v1";
+
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [input, setInput] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        setTodos(JSON.parse(raw) as Todo[]);
+      }
+    } catch {
+      alert("failed to load");
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  }, [todos]);
 
   const addTodo = () => {
     const text = input.trim();
@@ -37,6 +56,18 @@ export default function Home() {
 
   const hasCompleted = todos.some((t) => t.completed);
   const isEmptyInput = input.trim().length === 0;
+  const remaining = todos.filter((t) => !t.completed).length;
+
+  const visibleTodos = useMemo(() => {
+    switch (filter) {
+      case "active":
+        return todos.filter((t) => !t.completed);
+      case "completed":
+        return todos.filter((t) => t.completed);
+      default:
+        return todos;
+    }
+  }, [todos, filter]);
 
   return (
     <main className="min-h-screen bg-gray-200 p-8">
@@ -65,12 +96,48 @@ export default function Home() {
           </button>
         </div>
 
-        <TodoList todos={todos} onToggle={toggleTodo} onRemove={removeTodo} />
+        <div className="flex w-1/2 mx-auto mt-[2em] justify-center rounded-md border border-gray-300 overflow-hidden">
+          <button
+            onClick={() => setFilter("all")}
+            className={`flex-auto px-3 py-1 text-sm ${
+              filter === "all" ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilter("active")}
+            className={`flex-auto px-3 py-1 text-sm border-l border-gray-300 ${
+              filter === "active"
+                ? "bg-gray-100 font-medium"
+                : "hover:bg-gray-50"
+            }`}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => setFilter("completed")}
+            className={`flex-auto px-3 py-1 text-sm border-l border-gray-300 ${
+              filter === "completed"
+                ? "bg-gray-100 font-medium"
+                : "hover:bg-gray-50"
+            }`}
+          >
+            Done
+          </button>
+        </div>
 
-        <div className="flex items-center justify-between pt-2">
+        <TodoList
+          todos={visibleTodos}
+          onToggle={toggleTodo}
+          onRemove={removeTodo}
+        />
+
+        <div className="flex flex-row justify-around gap-3 pt-2">
           <span className="text-sm text-gray-600">
-            {todos.length} item{todos.length !== 1 ? "s" : ""}
+            {remaining} item{remaining !== 1 ? "s" : ""} left
           </span>
+
           <button
             onClick={clearCompleted}
             disabled={!hasCompleted}
