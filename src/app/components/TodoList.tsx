@@ -23,6 +23,18 @@ export default function TodoList({ todos, onToggle, onRemove }: Props) {
           className="bg-white shadow-lg border border-gray-300 rounded p-3 flex justify-between items-center"
         >
           <label className="flex flex-1 items-center gap-3">
+            <span className="inline-flex w-6 h-6 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-700 text-xs font-medium">
+              {todo.priority}
+            </span>
+
+            <span
+              className={`break-words ${
+                todo.completed ? "line-through text-gray-400" : ""
+              }`}
+            >
+              {todo.text}
+            </span>
+
             <input
               type="checkbox"
               checked={todo.completed}
@@ -32,14 +44,6 @@ export default function TodoList({ todos, onToggle, onRemove }: Props) {
                 todo.completed ? "active" : "completed"
               }`}
             />
-
-            <span
-              className={`break-words ${
-                todo.completed ? "line-through text-gray-400" : ""
-              }`}
-            >
-              {todo.text}
-            </span>
           </label>
 
           <button

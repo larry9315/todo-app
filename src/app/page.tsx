@@ -7,6 +7,9 @@ import type { Todo } from "../types";
 type Filter = "all" | "active" | "completed";
 const STORAGE_KEY = "todos-v1";
 
+const renumber = (list: Todo[]): Todo[] =>
+  list.map((t, i) => ({ ...t, priority: i + 1 }));
+
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [input, setInput] = useState("");
@@ -30,7 +33,12 @@ export default function Home() {
   const addTodo = () => {
     const text = input.trim();
     if (!text) return;
-    setTodos((prev) => [...prev, { id: Date.now(), text, completed: false }]);
+    setTodos((prev) =>
+      renumber([
+        ...prev,
+        { id: Date.now(), text, completed: false, priority: prev.length + 1 },
+      ])
+    );
     setInput("");
   };
 
@@ -41,7 +49,7 @@ export default function Home() {
   };
 
   const removeTodo = (id: number) => {
-    setTodos((prev) => prev.filter((element) => element.id !== id));
+    setTodos((prev) => renumber(prev.filter((element) => element.id !== id)));
   };
 
   const toggleTodo = (id: number) => {
@@ -96,10 +104,10 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="flex w-1/2 mx-auto mt-[2em] justify-center rounded-md border border-gray-300 overflow-hidden">
+        <div className="flex w-3/5 mx-auto mt-[2em] justify-center rounded-md border border-gray-300 overflow-hidden">
           <button
             onClick={() => setFilter("all")}
-            className={`flex-auto px-3 py-1 text-sm ${
+            className={`flex-1 py-1 text-sm ${
               filter === "all" ? "bg-gray-100 font-medium" : "hover:bg-gray-50"
             }`}
           >
@@ -107,7 +115,7 @@ export default function Home() {
           </button>
           <button
             onClick={() => setFilter("active")}
-            className={`flex-auto px-3 py-1 text-sm border-l border-gray-300 ${
+            className={`flex-1 py-1 text-sm border-l border-gray-300 ${
               filter === "active"
                 ? "bg-gray-100 font-medium"
                 : "hover:bg-gray-50"
@@ -117,13 +125,13 @@ export default function Home() {
           </button>
           <button
             onClick={() => setFilter("completed")}
-            className={`flex-auto px-3 py-1 text-sm border-l border-gray-300 ${
+            className={`flex-1 py-1 text-sm border-l border-gray-300 ${
               filter === "completed"
                 ? "bg-gray-100 font-medium"
                 : "hover:bg-gray-50"
             }`}
           >
-            Done
+            Completed
           </button>
         </div>
 
@@ -147,7 +155,7 @@ export default function Home() {
                 : "text-gray-400 cursor-not-allowed"
             }`}
           >
-            Clear completed
+            Clear Completed
           </button>
         </div>
       </div>
