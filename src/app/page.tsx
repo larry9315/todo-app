@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import TodoList from "./components/TodoList";
 import type { Todo } from "../types";
 
@@ -79,7 +80,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-200 p-8">
-      <div className="max-w-2xl bg-white mx-auto space-y-4 border-1 border-black rounded-2xl p-8">
+      <div className="max-w-2xl bg-white mx-auto space-y-4 border border-black rounded-2xl p-8">
         <h1 className="text-4xl font-bold text-center mb-10">To-Do List</h1>
 
         <div className="flex gap-3">
@@ -135,11 +136,21 @@ export default function Home() {
           </button>
         </div>
 
-        <TodoList
-          todos={visibleTodos}
-          onToggle={toggleTodo}
-          onRemove={removeTodo}
-        />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={filter} // <- change triggers exit/enter
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }} // tweak to taste
+          >
+            <TodoList
+              todos={visibleTodos}
+              onToggle={toggleTodo}
+              onRemove={removeTodo}
+            />
+          </motion.div>
+        </AnimatePresence>
 
         <div className="flex flex-row justify-around gap-3 pt-2">
           <span className="text-sm text-gray-600">
