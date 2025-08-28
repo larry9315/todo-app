@@ -59,7 +59,7 @@ export default function Home() {
   };
 
   const clearCompleted = () => {
-    setTodos((prev) => prev.filter((t) => !t.completed));
+    setTodos((prev) => renumber(prev.filter((t) => !t.completed)));
   };
 
   const hasCompleted = todos.some((t) => t.completed);
