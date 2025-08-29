@@ -59,6 +59,15 @@ export default function Home() {
     );
   };
 
+  const editTodo = (id: number, nextText: string) => {
+    const text = nextText.trim();
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === id ? { ...t, text: text === "" ? t.text : text } : t
+      )
+    );
+  };
+
   const clearCompleted = () => {
     setTodos((prev) => renumber(prev.filter((t) => !t.completed)));
   };
@@ -148,6 +157,7 @@ export default function Home() {
               todos={visibleTodos}
               onToggle={toggleTodo}
               onRemove={removeTodo}
+              onEdit={editTodo}
             />
           </motion.div>
         </AnimatePresence>
