@@ -59,7 +59,7 @@ export default function TodoList({ todos, onToggle, onRemove, onEdit }: Props) {
                   borderWidth: 0,
                 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white shadow-lg border border-gray-300 rounded p-3 flex justify-between items-center"
+                className="bg-white shadow-lg border border-gray-300 rounded p-3 flex justify-between items-center overflow-auto"
               >
                 <div className="flex flex-1 items-center gap-3">
                   <span className="inline-flex w-6 h-6 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-700 text-xs font-medium">

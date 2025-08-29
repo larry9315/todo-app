@@ -88,8 +88,8 @@ export default function Home() {
   }, [todos, filter]);
 
   return (
-    <main className="min-h-screen bg-gray-200 p-8">
-      <div className="max-w-2xl bg-white mx-auto space-y-4 border border-black rounded-2xl p-8">
+    <main className="flex justify-center items-center min-h-screen bg-gray-200 p-8">
+      <div className="flex-auto max-w-2xl h-[70vh] bg-white space-y-4 border border-black rounded-2xl p-8 overflow-auto">
         <h1 className="text-4xl font-bold text-center mb-10">To-Do List</h1>
 
         <div className="flex gap-3">
