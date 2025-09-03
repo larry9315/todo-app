@@ -4,4 +4,5 @@ export type Todo = {
     text: string;
     completed: boolean;
     priority: number
+    tags?: string[];
 }
