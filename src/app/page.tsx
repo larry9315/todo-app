@@ -16,6 +16,9 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
 
+  const [search, setSearch] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -37,7 +40,13 @@ export default function Home() {
     setTodos((prev) =>
       renumber([
         ...prev,
-        { id: Date.now(), text, completed: false, priority: prev.length + 1 },
+        {
+          id: Date.now(),
+          text,
+          completed: false,
+          priority: prev.length + 1,
+          tags: [],
+        },
       ])
     );
     setInput("");
@@ -68,6 +77,28 @@ export default function Home() {
     );
   };
 
+  const addTag = (id: number, tag: string) => {
+    const clean = tag.trim().toLowerCase();
+    if (!clean) return;
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? { ...t, tags: Array.from(new Set([...(t.tags ?? []), clean])) }
+          : t
+      )
+    );
+  };
+
+  const removeTag = (id: number, tag: string) => {
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? { ...t, tags: (t.tags ?? []).filter((x) => x !== tag) }
+          : t
+      )
+    );
+  };
+
   const clearCompleted = () => {
     setTodos((prev) => renumber(prev.filter((t) => !t.completed)));
   };
@@ -76,23 +107,53 @@ export default function Home() {
   const isEmptyInput = input.trim().length === 0;
   const remaining = todos.filter((t) => !t.completed).length;
 
-  const visibleTodos = useMemo(() => {
+  const availableTags = useMemo(() => {
+    const set = new Set<string>();
+    todos.forEach((t) => (t.tags ?? []).forEach((tag) => set.add(tag)));
+    return Array.from(set).sort();
+  }, [todos]);
+
+  const baseTodos = useMemo(() => {
     switch (filter) {
       case "active":
-        return renumber(todos.filter((t) => !t.completed));
+        return todos.filter((t) => !t.completed);
       case "completed":
-        return renumber(todos.filter((t) => t.completed));
+        return todos.filter((t) => t.completed);
       default:
         return todos;
     }
   }, [todos, filter]);
+
+  const visibleTodos = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return baseTodos.filter((t) => {
+      const matchesSearch =
+        q.length === 0 ||
+        t.text.toLowerCase().includes(q) ||
+        (t.tags ?? []).some((tag) => tag.includes(q));
+
+      const matchesTags =
+        selectedTags.length === 0 ||
+        selectedTags.every((tag) => (t.tags ?? []).includes(tag));
+
+      return matchesSearch && matchesTags;
+    });
+  }, [todos, filter]);
+
+  const toggleSelectedTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const clearTagFilters = () => setSelectedTags([]);
 
   return (
     <main className="flex justify-center items-center min-h-screen bg-gray-200 p-8">
       <div className="flex-auto max-w-2xl h-[70vh] bg-white space-y-4 border border-black rounded-2xl p-8 overflow-auto">
         <h1 className="text-4xl font-bold text-center mb-10">To-Do List</h1>
 
-        <div className="flex gap-3">
+        <div className="flex w-[30rem] mx-auto gap-3">
           <input
             type="text"
             value={input}
@@ -101,17 +162,33 @@ export default function Home() {
             placeholder="Add a task..."
             className="flex-[9] p-2 border border-gray-300 rounded-lg"
           />
-          <button
-            onClick={addTodo}
-            disabled={isEmptyInput}
-            className={`flex-[1] px-4 py-2 rounded text-white ${
-              isEmptyInput
-                ? "bg-blue-300 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            Add
-          </button>
+
+          {!isEmptyInput && (
+            <button
+              onClick={addTodo}
+              disabled={isEmptyInput}
+              className={`flex-[1] px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-600`}
+            >
+              Add
+            </button>
+          )}
+        </div>
+
+        <div className="flex w-[30rem] mx-auto items-center gap-3">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tasks or tags..."
+            className="flex-[9] p-2 border border-gray-300 rounded-lg"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="text-md flex-[1] px-4 py-2 rounded text-white bg-blue-600"
+            >
+              Clear
+            </button>
+          )}
         </div>
 
         <div className="flex w-3/5 mx-auto mt-[2em] justify-center rounded-md border border-gray-300 overflow-hidden">
